@@ -16,19 +16,23 @@ interface InputProps {
 const Input: React.FC<InputProps> = ({
     label,
     id,
-    type,
-    required,
+    type = "text",
+    required = false,
     register,
     errors,
-    disabled,
+    disabled = false,
 }) => {
     return (
         <div>
             <label
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className={clsx(
+                    `block text-sm font-medium leading-6 `,
+                    errors[id] && "text-rose-500",
+                    !errors[id] && "text-gray-900"
+                )}
                 htmlFor={id}
             >
-                {label}
+                {label} *
             </label>
             <div className="mt-2">
                 <input
@@ -36,14 +40,24 @@ const Input: React.FC<InputProps> = ({
                     id={id}
                     autoComplete={id}
                     disabled={disabled}
-                    {...register(id, { required })}
+                    {...register(id, { required: true })}
                     className={clsx(
-                        `form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
-                        placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-sky-600 sm:text-sm sm:leading-6`,
-                        errors[id] && "focus:ring-rose-500",
-                        disabled && "opacity-50 cursor-default"
+                        "form-input block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset  placeholder:text-gray-400 focus:ring-2 focus:ring-inset  sm:text-sm sm:leading-6",
+                        errors[id] && "focus:ring-rose-500 ring-rose-500",
+                        disabled && "opacity-50 cursor-default",
+                        !disabled &&
+                            !errors[id] &&
+                            "focus:ring-sky-600 ring-gray-300"
                     )}
                 />
+                {errors[id] && (
+                    <p
+                        className="mt-2 text-sm text-rose-500"
+                        id={`${id}-error`}
+                    >
+                        {"This field is required"}
+                    </p>
+                )}
             </div>
         </div>
     );

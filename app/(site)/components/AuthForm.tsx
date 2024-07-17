@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 
 import Input from "@/app/components/inputs/Input";
@@ -9,13 +9,23 @@ import AuthSocialButton from "./AuthSocialButton";
 import { BsFacebook, BsGithub, BsGoogle } from "react-icons/bs";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Variant = "LOGIN" | "REGISTER";
 
 const AuthForm = () => {
+    const session = useSession();
+    const router = useRouter();
+
     const [variant, setVariant] = useState<Variant>("LOGIN");
     const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (session?.status === "authenticated") {
+            router.push("/users");
+        }
+    }, [session?.status, router]);
 
     const toggleVariant = useCallback(() => {
         if (variant === "LOGIN") {
@@ -45,6 +55,7 @@ const AuthForm = () => {
             axios
                 .post("/api/register", data)
                 .then(() => toast.success("Account created successfully"))
+                .then(() => signIn("credentials", data))
                 .then(() => reset())
                 .catch(() => toast.error("Something went wrong"))
                 .finally(() => setIsLoading(false));
@@ -63,6 +74,7 @@ const AuthForm = () => {
 
                     if (callback?.ok) {
                         toast.success("Logged in successfully");
+                        router.push("/users");
                     }
                 })
                 .finally(() => setIsLoading(false));
@@ -86,8 +98,8 @@ const AuthForm = () => {
     };
 
     return (
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-            <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md p-6 sm:p-0">
+            <div className="bg-white px-4 py-8 shadow rounded-lg sm:px-10">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {variant === "REGISTER" && (
                         <Input
@@ -106,6 +118,7 @@ const AuthForm = () => {
                         errors={errors}
                         disabled={isLoading}
                     />
+
                     <Input
                         id="password"
                         label="Password"
@@ -114,6 +127,16 @@ const AuthForm = () => {
                         errors={errors}
                         disabled={isLoading}
                     />
+                    {/* {variant === "REGISTER" && (
+                        <Input
+                            id="ConfirmPassword"
+                            label="Confirm Password"
+                            type="password"
+                            register={register}
+                            errors={errors}
+                            disabled={isLoading}
+                        />
+                    )} */}
                     <div className="">
                         <Button disabled={isLoading} fullWidth type={"submit"}>
                             {variant === "LOGIN" ? "Sign In" : "Register"}
@@ -138,12 +161,12 @@ const AuthForm = () => {
                             onClick={() => socialAction("facebook")}
                         />
                         <AuthSocialButton
-                            icon={BsGithub}
-                            onClick={() => socialAction("github")}
-                        />
-                        <AuthSocialButton
                             icon={BsGoogle}
                             onClick={() => socialAction("google")}
+                        />
+                        <AuthSocialButton
+                            icon={BsGithub}
+                            onClick={() => socialAction("github")}
                         />
                     </div>
                 </div>

@@ -29,19 +29,19 @@ const Button: React.FC<ButtonProps> = ({
             disabled={disabled}
             className={clsx(
                 `
-              flex
-              justify-center
-              rounded-md
-              px-3
-              py-2
-              text-sm
-              font-semibold
-              focus-visible:outline
-              focus-visible:outline-2
-              focus-visible:outline-offset-2
-              transition
-              duration-300
-              ease-in-out
+                flex
+                justify-center
+                rounded-md
+                px-3
+                py-2
+                text-sm
+                font-semibold
+                focus-visible:outline
+                focus-visible:outline-2
+                focus-visible:outline-offset-2
+                transition
+                duration-300
+                ease-in-out
             `,
                 disabled && "opacity-50 cursor-default",
                 fullWidth && "w-full",
